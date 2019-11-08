@@ -25,12 +25,14 @@ field_renames = [
 
 def delete_payment_views(cr):
     """Delete account.voucher payment views that hinder upgrade."""
-    cr.execute(
-        """\
-        DELETE FROM ir_ui_view
-        WHERE name like '%account.voucher.payment%'
-        """
-    )
+    cr.execute("""
+        DELETE FROM ir_ui_view WHERE id in (
+            SELECT id FROM ir_ui_view WHERE inherit_id in (
+                SELECT id FROM ir_ui_view WHERE name like '%account.voucher.payment%'
+            )
+        );
+    """)
+    cr.execute("DELETE FROM ir_ui_view WHERE name like '%account.voucher.payment%'")
 
 
 @openupgrade.migrate(use_env=True)
