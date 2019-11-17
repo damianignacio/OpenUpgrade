@@ -156,7 +156,7 @@ def add_fields_to_delivery_carrier(cr):
 
 
 def correct_grid_references(env):
-    env.cr.execute("SELECT dg.id, dc.carrier_id FROM delivery_grid dg")
+    env.cr.execute("SELECT dg.id, dg.carrier_id FROM delivery_grid dg")
 
     # grid_id -> carrier_id
     mapping = {}
