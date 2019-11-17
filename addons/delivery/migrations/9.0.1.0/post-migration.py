@@ -6,8 +6,8 @@
 from openupgradelib import openupgrade
 
 
-@openupgrade.migrate()
-def migrate(cr, version):
+# @openupgrade.migrate()
+def __NA__migrate(cr, version):
     cr.execute(
         """
         UPDATE delivery_carrier dc
