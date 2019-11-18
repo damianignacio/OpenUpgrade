@@ -98,7 +98,7 @@ def __NA__fill_missing_delivery_grid_records(cr):
     )
 
 
-def __NA__create_delivery_products(env):
+def create_delivery_products(env):
     """As now delivery.carrier inherits by delegation from product.product,
     we need to create a specific product for each carrier, independently from
     the previous product that was assigned. If not, things like the carrier
@@ -107,23 +107,19 @@ def __NA__create_delivery_products(env):
     To be executed before the renaming, but after filling missing grids.
     """
     # Pre-create product_id column
-    env.cr.execute("ALTER TABLE delivery_grid ADD product_id INTEGER")
+    # env.cr.execute("ALTER TABLE delivery_grid ADD product_id INTEGER")
     # Add a product per carrier
-    env.cr.execute(
-        """SELECT dg.id, dc.name, dg.name
-        FROM delivery_carrier dc, delivery_grid dg
-        WHERE dc.id = dg.carrier_id"""
-    )
+    env.cr.execute("SELECT dc.id, dc.name FROM delivery_carrier dc")
     Product = env['product.product']
     for row in env.cr.fetchall():
         product = Product.create({
-            'name': row[1] + ": " + row[2],
+            'name': row[1],
             'type': 'service',
         })
-        env.cr.execute(
-            "UPDATE delivery_grid SET product_id=%s WHERE id=%s",
-            (product.id, row[0]),
-        )
+        env.cr.execute("UPDATE delivery_carrier SET product_id = %s WHERE id = %s", [
+            product.id,
+            row[0],
+        ])
 
 
 # Fields added to version 9.0
@@ -200,7 +196,7 @@ def migrate(env, version):
     mantain_grid_reference(cr)
 
     # __NA__fill_missing_delivery_grid_records(cr)
-    # __NA__create_delivery_products(env)
+    create_delivery_products(env)
     # __NA__correct_object_references(cr)
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.rename_fields(env, field_renames)
